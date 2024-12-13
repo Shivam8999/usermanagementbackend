@@ -1,0 +1,25 @@
+{
+  "name": "usermanagementbackend",
+  "version": "1.0.0",
+  "description": "This is backend for user management i.e login,logout,reset password with otp, register, terminate a specific session, block a particular user until further notice, validate all the requests (middleware)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev":"nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shivam8999/usermanagementbackend.git"
+  },
+  "author": "Shivam Vishwakarma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Shivam8999/usermanagementbackend/issues"
+  },
+  "homepage": "https://github.com/Shivam8999/usermanagementbackend#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "moongose": "^1.0.0",
+    "nodemon": "^3.1.9"
+  }
+}
