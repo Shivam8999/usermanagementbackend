@@ -2,13 +2,22 @@ const userModal= require("../models/UsersModel.js")
 const bcrypt = require("bcrypt")
 const jwt= require("jsonwebtoken")
 const sessionmodel= require("../models/SessionsModel.js")
-
 require("dotenv").config()
+
+/** 
+ * takes name, email, password from body
+ * register the user then return access token and refresh token
+ * send them in cookies as well and update the sessions collection
+ * if email already exists return error
+*/
 const register= async (req, res) => {
-    const { name, email, password }= req.body
-    if(!name || !email || !password) 
+    const { name, email, password,conpassword }= req.body
+    if(!name || !email || !password || !conpassword) 
         return res.status(400).json({ message: "name, email and password are required" })
 
+    if(password!=conpassword)
+        return res.status(400).json({ message: "password and confirm password does not match" })
+     
     try {
         const encpassword= await  bcrypt.hash(password, 10)
         let user= new userModal({ Name:name, Email:email, Password: encpassword,Role: "user" })
@@ -26,6 +35,11 @@ const register= async (req, res) => {
     }
 }
 
+/** 
+ * takes email, password from body
+ * login the user then return access token and refresh token
+ * send them in cookies as well and update the sessions collection
+*/
 const loginuser = async (req, res) => {
     const { email, password }= req.body
     if(!email || !password) 
@@ -50,8 +64,8 @@ const loginuser = async (req, res) => {
             return res.status(400).json({ message: "invalid email or password" })
 
         //generate accessToken and refreshToken
-        let accesstoken= jwt.sign({ id: user._id,name:user.Name }, process.env.ACCESSTOKEN_SECRET,{expiresIn: "15m"})
-        let refreshtoken= jwt.sign({ id: user._id,name:user.Name }, process.env.REFRESHTOKEN_SECRET, { expiresIn: "30d" })
+        let accesstoken= jwt.sign({ id: user._id,name:user.Name,type:"accessToken",role:user.Role }, process.env.ACCESSTOKEN_SECRET,{expiresIn: "15m"})
+        let refreshtoken= jwt.sign({ id: user._id,name:user.Name,type:"refreshToken" }, process.env.REFRESHTOKEN_SECRET, { expiresIn: "30d" })
 
         //set the refreshtoken in sessions collection for fetching accesstoken
         let session= new sessionmodel({ userId: user._id, refreshtoken: refreshtoken,createdAt: new Date(), expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) })
@@ -69,8 +83,10 @@ const loginuser = async (req, res) => {
         }
 }
 
-//get access token from refresh token
-//refreshtoken is stored in sessions collection and refreshtoken is received from header or cookie
+/** 
+ * get access token from refresh token
+ * refreshtoken is stored in sessions collection and refreshtoken is received from header or cookie
+*/
 const getaccesstoken= async (req, res) => {
     //fetch refreshtoken from header
     let refreshtoken= req.headers.refreshtoken
@@ -99,7 +115,7 @@ const getaccesstoken= async (req, res) => {
 
         if(!user)
             return res.status(400).json({ message: "user not found" })
-        let accesstoken= jwt.sign({ id: user._id,name:user.Name }, process.env.ACCESSTOKEN_SECRET,{expiresIn: "15m"})
+        let accesstoken= jwt.sign({ id: user._id,name:user.Name,type:"accessToken",role:user.Role}, process.env.ACCESSTOKEN_SECRET,{expiresIn: "15m"})
         res.cookie("accesstoken", accesstoken, { httpOnly: true, expires: expiryAccessToken }); //send the new access token in cookie
 
         res.status(200).json({ message: "accessToken generated successfully",name:user.Name,status:user.status,email:user.Email, accesstoken })
@@ -114,23 +130,13 @@ const getaccesstoken= async (req, res) => {
     }
 }
 
-/*************  ✨ Codeium Command ⭐  *************/
+
 /**
- * Logs out a user by removing the refresh token from the session database
- * and clearing the access and refresh tokens from the cookies.
- *
- * @param {Object} req - The request object containing headers and cookies.
- * @param {Object} res - The response object used to send the HTTP response.
- *
- * The function first attempts to retrieve the refresh token from the request
- * headers or cookies. If the refresh token is not found, it sends a response
- * indicating that the refresh token is required. It then verifies the refresh
- * token and checks if a user exists with the given token. If the user is not
- * found, it returns an error response. If the user is found, it deletes the
- * session associated with the refresh token, clears the tokens from cookies,
- * and sends a success response. Handles and logs errors related to token 
- * expiration and invalid tokens.
- */
+ * logout user by taking refreshtoken from header or cookie
+ * refreshtoken is received from header or cookie
+ * finds and deletes the refreshtoken from sessions collection to make sure that the session has been deleted successfully
+ * Response will be sent with refreshtoken deleted and cookies will be send with empty values
+*/
 const logoutuser= async (req, res) => {
    //fetch refreshtoken from header
    let refreshtoken= req.headers.refreshtoken
@@ -145,12 +151,11 @@ const logoutuser= async (req, res) => {
         return res.status(400).json({ message: "refreshtoken is required" })
 
     try {
-        let payload= jwt.verify(refreshtoken, process.env.REFRESHTOKEN_SECRET)
-        let user= await userModal.findOne({refreshtoken})
-        if(!user)
-            return res.status(400).json({ message: "user not found" })
+        // let payload= jwt.verify(refreshtoken, process.env.REFRESHTOKEN_SECRET)
+        let user= await sessionmodel.deleteOne({ refreshtoken })
+        if(!user.deletedCount)
+            return res.status(400).json({ message: "session not found" })
 
-        await sessionmodel.deleteOne({ refreshtoken })
         res.cookie("refreshtoken", "", { httpOnly: true, expires: new Date(0) })
         res.cookie("accesstoken", "", { httpOnly: true, expires: new Date(0) })
         res.status(200).json({ message: "user logged out successfully" })
@@ -181,8 +186,6 @@ const logoutAllSessions= async (req, res) => {
  
      try {
         //  let payload= jwt.verify(refreshtoken, process.env.REFRESHTOKEN_SECRET)
-         
-        //  console.log(payload)
          let user= await userModal.findOne({_id:Object(userid)})
          if(!user)
              return res.status(400).json({ message: "user not found" })
@@ -204,7 +207,7 @@ const logoutAllSessions= async (req, res) => {
      }
  }
 
-
+//will accept access token from header and then validate it
 const validateAccessToken = async (req, res, next) => {
     let accessToken = req.cookies.accesstoken;
     if (!accessToken) {
@@ -217,24 +220,23 @@ const validateAccessToken = async (req, res, next) => {
     try {
         let tokendata = await jwt.verify(accessToken, process.env.ACCESSTOKEN_SECRET);
         console.log(tokendata)
-        res.json({ message: "Access token is valid" });
-        // next();
+        // res.json({ message: "Access token is valid" });
+        req.body.tokendata= tokendata
+        next();
     } catch (error) {
         console.log(error.message);
         return res.status(401).json({ message: "Invalid access token" });
     }
 }
 
+//takes email and then generates the otp from body, its valid for 10 minutes for now
 const generateOTP = async (req, res) => {
+    const otpvalidity = 10 //set validity of otp in minutes
     let email = req.body.email
     let baseotp =  Math.floor(3000 + Math.random() * 700000).toFixed(0)
     
-
-    const otpExpiry = new Date();
-    console.log(otpExpiry)
-    otpExpiry.setMinutes(otpExpiry.getMinutes() + 1);//5 minutes
-
-    console.log(otpExpiry)
+    const otpExpiry = new Date();   
+    otpExpiry.setMinutes(otpExpiry.getMinutes() + otpvalidity);//1 minutes from current time
 
     if(!email) 
         return res.status(400).json({ message: "email is required" })
@@ -244,13 +246,14 @@ const generateOTP = async (req, res) => {
     else if(baseotp.length==4)
         baseotp=baseotp[3]+baseotp+baseotp[0]
 
-    console.log(baseotp)
+    // console.log(baseotp)
+    //check OTP in mongoDB database
 
     try {
         const updateOTP= await userModal.updateOne({Email:email},{$set:{otp:baseotp,otpGeneratedAt:new Date(),otpExpiresAt:otpExpiry}})
         //here will come the logic for sending otp i.e email or phone number
 
-        res.json({ message: "OTP sent successfully" });
+        res.json({ message: "OTP sent successfully", validity:`${otpvalidity} minutes`  });
     } catch (error) {
         res.json({ message: "unable to send otp" });
     }
@@ -259,7 +262,7 @@ const generateOTP = async (req, res) => {
 //takes otp, email from body and validates the otp. If otp validated them remove the otp from database and return success
 const validateotp = async (req, res) => {
     const {email, otp} = req.body
-
+    const todaynow=new Date()
     if(!email || !otp){
         return res.status(400).json({ message: "email and otp are required" })
     }
@@ -268,11 +271,11 @@ const validateotp = async (req, res) => {
         if(!userdata)
             return res.status(400).json({ message: "user not found" })
 
-        if(userdata.otpExpiresAt>=new Date()){
+        const expiresAt= new Date(userdata.otpExpiresAt)
+        if(expiresAt<todaynow){
             return res.status(400).json({ message: "Expired OTP" })
         }
 
-        console.log(new Date())
 
         if(userdata.otp!=otp){
             return res.status(400).json({ message: "Invalid OTP" })
@@ -289,7 +292,11 @@ const validateotp = async (req, res) => {
     }
 }
 
-//post request takes email, old password, new password and confirm new password and changes the password to the new one
+
+/**
+ * post request takes email, old password, new password and confirm new password
+ * changes the password to the new one
+*/
 const changepassword = async (req, res) => {
     const {email,oldpass,newpass,confirmnewpass} = req.body
     if(!oldpass || !newpass || !confirmnewpass){
@@ -321,8 +328,13 @@ const changepassword = async (req, res) => {
     }
 }
 
-const changepasswordwithotp = async (req, res) => {
+/**
+ * takes email,otp,newpass,confirmnewpass from body
+ * changes the password to the new one, when a valid OTP has been validated
+*/
+const resetpasswordwithotp = async (req, res) => {
     const {email,otp,newpass,confirmnewpass} = req.body
+    const todaynow=new Date()
     if(!email ||!otp || !newpass || !confirmnewpass){
         return res.status(400).json({ message: "email, otp, new password and confirm new password are required" })
     }
@@ -335,10 +347,17 @@ const changepasswordwithotp = async (req, res) => {
         let userdata= await userModal.findOne({Email:email})
         if(!userdata)
             return res.status(400).json({ message: "user not found" })
-
-        if(userdata.otpExpiresAt<Date.now()){
+        const expiresAt= new Date(userdata.otpExpiresAt)
+      
+        if(userdata.otpExpiresAt==null){
+            return res.status(400).json({ message: "OTP not generated" })
+        }
+        if(expiresAt<todaynow){
             return res.status(400).json({ message: "Expired OTP" })
         }
+
+        if(userdata.otp=="")
+            return res.status(400).json({ message: "OTP not generated" })
 
         if(userdata.otp!=otp){
             return res.status(400).json({ message: "Invalid OTP" })
@@ -346,7 +365,7 @@ const changepasswordwithotp = async (req, res) => {
 
         let hashednewpass= await bcrypt.hash(newpass, 8)
 
-        const updatePassword= await userModal.updateOne({Email:email},{$set:{Password:hashednewpass}})
+        const updateUserData= await userModal.updateOne({Email:email},{$set:{Password:hashednewpass,otp:"",otpGeneratedAt:null,otpExpiresAt:null}})
 
         res.json({ message: "Password changed successfully" });
     }catch(error){
@@ -355,5 +374,4 @@ const changepasswordwithotp = async (req, res) => {
     }
 }
 
-
-module.exports={register,loginuser, getaccesstoken,logoutuser,logoutAllSessions,validateAccessToken,generateOTP, validateotp,changepassword}
+module.exports={register,loginuser, getaccesstoken,logoutuser,logoutAllSessions,validateAccessToken,generateOTP, validateotp,changepassword,resetpasswordwithotp}
