@@ -25,9 +25,18 @@ const userSchema= new Schema({
         required: true,
         enum: [1,2,3],
         default: 1
+    },
+    otp:{
+        type: String
+    },
+    otpGeneratedAt: {
+        type: Date | null
+    },
+    otpExpiresAt:{
+        type: Date | null
     }
 })
 
 
-const   Users= model("users", userSchema)
+const Users= model("users", userSchema)
 module.exports= Users
