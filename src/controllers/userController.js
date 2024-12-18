@@ -2,7 +2,13 @@ const userModal= require("../models/UsersModel.js")
 const bcrypt = require("bcrypt")
 const jwt= require("jsonwebtoken")
 const sessionmodel= require("../models/SessionsModel.js")
+const path = require("path")
+const multer= require("multer")
+const fs = require('fs')
+const uploadpath = path.join(__dirname,"..","..","public","uploads","documents")
+
 require("dotenv").config()
+
 
 /** 
  * takes name, email, password from body
@@ -374,4 +380,50 @@ const resetpasswordwithotp = async (req, res) => {
     }
 }
 
-module.exports={register,loginuser, getaccesstoken,logoutuser,logoutAllSessions,validateAccessToken,generateOTP, validateotp,changepassword,resetpasswordwithotp}
+/**
+ * Diskstorage allows you to write a custom login before saving the file on disk
+ * else const uploadsetup = multer({dist:"upload dir"})--is more than enough to save the files
+ */
+const diskstorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        if(!fs.existsSync(uploadpath)){ //check if the directory exists and if not then create it
+            fs.mkdirSync(uploadpath)
+        }
+        cb(null, uploadpath)
+    },
+    filename: function (req, file, cb) {
+        let newfilename = Date.now() + "." + file.originalname.split(".").at(-1); //file name is unique by renaming it to a timestamp
+        cb(null, newfilename)
+    },
+    fileFilter: (req, file, cb) => { // Only allow certain file types 
+        const allowedTypes = ['image/jpeg', 'image/png']; //tyes of file allowed for uploading, currently its jpg and jpeg.
+                                                        // docs : https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types
+        if (!allowedTypes.includes(file.mimetype)) {
+            return cb(new Error('Invalid file type')); 
+        } 
+        cb(null, true);
+    }
+
+
+})
+
+/**
+ * This function accepts dest or storage as storage paths. 
+ * if dest then directly the path on the disk can be given: multer({dist:"upload dir"})
+ * if storage custom logic for either diskstorage or MemoryStorage needs to be defined
+ */
+const uploadsetup = multer({ storage: diskstorage })
+
+const uploadfile = async (req, res) => {
+    const file=req.files.test //test is the name of the field in the form and accepts in the controller
+    const filenamelist=file.map(file=>file.filename) //returns a new array of filenames
+    if(file){
+        res.json({message:"file uploaded successfully", filenames:filenamelist})
+    }else{
+        res.status(500).json({message:"unable to upload file"})
+    }
+}
+
+module.exports={register,loginuser, getaccesstoken,logoutuser,logoutAllSessions,
+    validateAccessToken,generateOTP, uploadsetup, uploadfile,
+    validateotp,changepassword,resetpasswordwithotp}

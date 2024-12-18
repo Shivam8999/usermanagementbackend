@@ -1,5 +1,5 @@
 const express= require('express')
-const {register,loginuser,getaccesstoken,logoutuser,logoutAllSessions,validateAccessToken, generateOTP, validateotp,changepassword,resetpasswordwithotp} =require("../controllers/userController")
+const {register,loginuser,getaccesstoken,logoutuser,logoutAllSessions,validateAccessToken,uploadsetup,uploadfile, generateOTP, validateotp,changepassword,resetpasswordwithotp} =require("../controllers/userController")
 
 router= express.Router()
 
@@ -17,5 +17,7 @@ router.post("/user/generateotp", generateOTP)
 router.post("/user/validateotp", validateotp)
 router.post("/user/changepassword", changepassword)
 router.post("/user/resetpasswordwithotp", resetpasswordwithotp)
-
+router.post("/user/fileupload",uploadsetup.fields([
+    { name: 'test', maxCount: 1 },
+  ]), uploadfile)
 module.exports= router
