@@ -9,38 +9,6 @@ const uploadpath = path.join(__dirname,"..","..","public","uploads","documents")
 
 require("dotenv").config()
 
-
-/** 
- * takes name, email, password from body
- * register the user then return access token and refresh token
- * send them in cookies as well and update the sessions collection
- * if email already exists return error
-*/
-const register= async (req, res) => {
-    const { name, email, password,conpassword }= req.body
-    if(!name || !email || !password || !conpassword) 
-        return res.status(400).json({ message: "name, email and password are required" })
-
-    if(password!=conpassword)
-        return res.status(400).json({ message: "password and confirm password does not match" })
-     
-    try {
-        const encpassword= await  bcrypt.hash(password, 10)
-        let user= new userModal({ Name:name, Email:email, Password: encpassword,Role: "user" })
-        await user.save()
-        res.json({ message: "user registered successfully", user })
-    } catch (error) {
-        let errorMessage=error.message
-        console.log(errorMessage)
-        if(errorMessage.includes("E11000 duplicate key error collection")){
-            let newkeys = Object.keys(error.keyValue)
-            return res.status(400).json({ message: "Alredy Exist user ", fields: newkeys })
-        }
-
-        res.status(500).json({ message: "unable to register user" })
-    }
-}
-
 /** 
  * takes email, password from body
  * login the user then return access token and refresh token
@@ -63,7 +31,10 @@ const loginuser = async (req, res) => {
         let user= await userModal.findOne({ Email: email })
         if(!user)
             return res.status(400).json({ message: "invalid email or password" })
-        
+        //if user is blocked return the error
+        if(user.status==2){
+            return res.status(400).json({ message: "user is blocked and cannot login" })
+        }
         //check password
         let isMatch= await bcrypt.compare(password, user.Password)
         if(!isMatch)
@@ -88,6 +59,31 @@ const loginuser = async (req, res) => {
         res.status(500).json({ message: "unable to login user" })
         }
 }
+/** 
+ * logged in users can update all of their personal information i.e  name,email, phone, address
+*/
+const updateAccInfo = async (req, res) => {
+    try {
+        const { name,email, phone, address } = req.body;
+        const {id} = req.body.tokendata;
+
+        let user = await userModal.findById(id);
+        if (!user) {
+            return res.status(400).json({ message: "user not found" });
+        }
+        user.Name = name || user.Name;
+        user.Email = email || user.Email;
+        user.Phone = phone || user.Phone;
+        user.Address = address || user.Address;
+        await user.save();
+
+        res.status(200).json({ message: "user information updated successfully", user });
+    }catch{
+        console.log(error.message)
+        res.status(500).json({ message: "unable to update information" })
+    }
+}
+
 
 /** 
  * get access token from refresh token
@@ -121,6 +117,12 @@ const getaccesstoken= async (req, res) => {
 
         if(!user)
             return res.status(400).json({ message: "user not found" })
+
+        //if user is blocked return the error
+        if(user.status==2){
+            return res.status(400).json({ message: "user is blocked and access token cannot be generated further" })
+        }
+
         let accesstoken= jwt.sign({ id: user._id,name:user.Name,type:"accessToken",role:user.Role}, process.env.ACCESSTOKEN_SECRET,{expiresIn: "15m"})
         res.cookie("accesstoken", accesstoken, { httpOnly: true, expires: expiryAccessToken }); //send the new access token in cookie
 
@@ -135,7 +137,6 @@ const getaccesstoken= async (req, res) => {
         res.status(500).json({ message: "unable to login user" })
     }
 }
-
 
 /**
  * logout user by taking refreshtoken from header or cookie
@@ -213,11 +214,22 @@ const logoutAllSessions= async (req, res) => {
      }
  }
 
-//will accept access token from header and then validate it
+/**
+ *  will accept access token from header and then validate it
+ * it adds the tokendata to the request body
+ * {  id: 'mongodb object id',  name: 'name in token', type: 'accessToken|refreshToken',  role: 'admin|user' }
+*/
 const validateAccessToken = async (req, res, next) => {
     let accessToken = req.cookies.accesstoken;
     if (!accessToken) {
-        accessToken = req.headers.accesstoken;
+        try {
+            accessToken = req.headers.authorization.split(" ")[1];
+        } catch (error) {
+            console.log(error.message);
+            res.status(401).json({ message: "Authorization token not found" });
+            return
+        }
+        
       }
     if (!accessToken) {
       return res.status(401).json({ message: "Access token not found" });
@@ -225,8 +237,7 @@ const validateAccessToken = async (req, res, next) => {
 
     try {
         let tokendata = await jwt.verify(accessToken, process.env.ACCESSTOKEN_SECRET);
-        console.log(tokendata)
-        // res.json({ message: "Access token is valid" });
+        // console.log(tokendata) //uncomment this if needed to see the tokendata for understanding
         req.body.tokendata= tokendata
         next();
     } catch (error) {
@@ -424,6 +435,6 @@ const uploadfile = async (req, res) => {
     }
 }
 
-module.exports={register,loginuser, getaccesstoken,logoutuser,logoutAllSessions,
+module.exports={loginuser,updateAccInfo, getaccesstoken,logoutuser,logoutAllSessions,
     validateAccessToken,generateOTP, uploadsetup, uploadfile,
     validateotp,changepassword,resetpasswordwithotp}

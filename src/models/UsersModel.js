@@ -12,31 +12,42 @@ const userSchema= new Schema({
         required: true,
         unique: true
     },
+    Phone: {
+        type: String,
+    },
+    Address: {
+        type: String 
+    },
     Password: {
         type: String,
         required: true
     },
     Role: {
         type: String,
-        required: true
+        required: true,
+        enum: ["user", "admin"],
+        default: "user"
     },
-    status: { //1 for active, 2 for inactive, 3 for blocked
+    status: { //1 for unblocked, 2 for blocked
         type: Number,
         required: true,
-        enum: [1,2,3],
+        enum: [1,2],
         default: 1
     },
     otp:{
-        type: String
+        type: String,
+        required: true,
+        default: " "
     },
     otpGeneratedAt: {
-        type: Date | null
+        type: Date 
     },
     otpExpiresAt:{
-        type: Date | null
+        type: Date
     }
 })
 
 
 const Users= model("users", userSchema)
+Users.syncIndexes()
 module.exports= Users

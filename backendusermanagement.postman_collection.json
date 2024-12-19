@@ -1,0 +1,324 @@
+{
+	"info": {
+		"_postman_id": "706256f2-9e81-4348-a457-ffe7e349469a",
+		"name": "backendusermanagement",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "36461984"
+	},
+	"item": [
+		{
+			"name": "userSide",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"auth": {
+							"type": "oauth1",
+							"oauth1": {
+								"signatureMethod": "HMAC-SHA1",
+								"version": "1.0",
+								"addParamsToHeader": false,
+								"addEmptyParamsToSign": false
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Shivam Vishwakarma\",\r\n    \"email\":\"shivamvishwakarma3@gmail.com\",\r\n    \"password\": \"Hello world\",\r\n    \"conpassword\": \"Hello world\",\r\n    \"address\":\"This is test address\",\r\n    \"phone\":\"1234567890\"   \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/user/register"
+					},
+					"response": []
+				},
+				{
+					"name": "loginuser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\"email\":\"updatedemail@gmail.com\", \"password\":\"Hello world\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/user/login"
+					},
+					"response": []
+				},
+				{
+					"name": "getacesstoken",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "refreshtoken",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWU5MzgxYjYwZGMzZGYyMGY3YjliYyIsIm5hbWUiOiJTaGl2YW0gVmlzaHdha2FybWEiLCJpYXQiOjE3MzQyNjk3ODIsImV4cCI6MTczNjg2MTc4Mn0.N7jGBDJjn0iQAhmhH6y-Y0AgSfhBuXb1RxOeVKUloKo",
+								"type": "text"
+							}
+						],
+						"url": "{{serverurlusermngmnt}}/user/getaccesstoken"
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "refreshtoken",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWU5MzgxYjYwZGMzZGYyMGY3YjliYyIsIm5hbWUiOiJTaGl2YW0gVmlzaHdha2FybWEiLCJpYXQiOjE3MzQ0NDYxMDUsImV4cCI6MTczNzAzODEwNX0.D2_rzSjHcYvH0DRcMSpdP9Vnv6fTGxXKWS7fVGq2Jq8",
+								"type": "text"
+							}
+						],
+						"url": "{{serverurlusermngmnt}}/user/logout"
+					},
+					"response": []
+				},
+				{
+					"name": "logoutall",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "refreshtoken",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWU5MzgxYjYwZGMzZGYyMGY3YjliYyIsIm5hbWUiOiJTaGl2YW0gVmlzaHdha2FybWEiLCJpYXQiOjE3MzQyNjk1MjcsImV4cCI6MTczNjg2MTUyN30.sXKbKn09gnw4U8z7RyndQLM91B7wRXqIb-PPZ6dpdEE",
+								"type": "text"
+							},
+							{
+								"key": "userid",
+								"value": "675e9381b60dc3df20f7b9bc",
+								"type": "text"
+							}
+						],
+						"url": "{{serverurlusermngmnt}}/user/logoutallsessions"
+					},
+					"response": []
+				},
+				{
+					"name": "validateaccesstoken",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{accessToken}}"
+							}
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "accesstoken",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NjJlZWM2NDEwMmU0MzcwZDU4Nzc0ZCIsIm5hbWUiOiJTaGl2YW0gVmlzaHdha2FybWEiLCJ0eXBlIjoiYWNjZXNzVG9rZW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzQ1MzcwNTAsImV4cCI6MTczNDUzNzk1MH0.yr5XNAtdzsmtuER8cxc8kUHMdUPpe1676UAt3Q3ef44",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": "{{serverurlusermngmnt}}/user/validateaccesstoken"
+					},
+					"response": []
+				},
+				{
+					"name": "requestOTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"shivamvishwakarma6@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/user/generateotp"
+					},
+					"response": []
+				},
+				{
+					"name": "validate OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"shivamvishwakarma@gmail.com\",\r\n    \"otp\":\"183540\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/user/validateotp"
+					},
+					"response": []
+				},
+				{
+					"name": "changePassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n    {\"email\":\"shivamvishwakarma@gmail.com\",\"oldpass\":\"Hello world\",\"newpass\":\"New World\",\"confirmnewpass\":\"New World\"}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/user/changepassword"
+					},
+					"response": []
+				},
+				{
+					"name": "resetpassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"email\":\"shivamvishwakarma@gmail.com\",\r\n    \"otp\":\"562728\",\r\n    \"newpass\":\"thunderbird\",\r\n    \"confirmnewpass\":\"thunderbird\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/user/resetpasswordwithotp"
+					},
+					"response": []
+				},
+				{
+					"name": "uploadfile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "test",
+									"type": "file",
+									"src": "/C:/Users/shiva/Downloads/pexels-pixabay-158063.jpg"
+								}
+							]
+						},
+						"url": "{{serverurlusermngmnt}}/user/fileupload"
+					},
+					"response": []
+				},
+				{
+					"name": "updateInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{accessToken}}"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"updated name\",\r\n    \"address\":\"this is updated address\",\r\n    \"email\":\"updatedemail@gmail.com\",\r\n    \"phone\":\"upadtednumber\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/user/updateinfo"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "adminSide",
+			"item": [
+				{
+					"name": "Update User Role",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{accessToken}}"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"6762eee94102e4370d587755\",\r\n    // \"role\":\"user\"\r\n    \"role\":\"user\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/admin/updateaccrole"
+					},
+					"response": []
+				},
+				{
+					"name": "block User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{accessToken}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"6762eee94102e4370d587755\",\r\n    \"blocked\":\"true\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/admin/blockunblockuser"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{accessToken}}"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userid\":\"6762eee94102e4370d587755\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{serverurlusermngmnt}}/admin/deleteuser"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
