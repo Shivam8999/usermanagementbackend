@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "706256f2-9e81-4348-a457-ffe7e349469a",
 		"name": "backendusermanagement",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "36461984"
 	},
 	"item": [
@@ -14,25 +14,50 @@
 					"request": {
 						"auth": {
 							"type": "oauth1",
-							"oauth1": {
-								"signatureMethod": "HMAC-SHA1",
-								"version": "1.0",
-								"addParamsToHeader": false,
-								"addEmptyParamsToSign": false
-							}
+							"oauth1": [
+								{
+									"key": "signatureMethod",
+									"value": "HMAC-SHA1",
+									"type": "string"
+								},
+								{
+									"key": "version",
+									"value": "1.0",
+									"type": "string"
+								},
+								{
+									"key": "addParamsToHeader",
+									"value": false,
+									"type": "boolean"
+								},
+								{
+									"key": "addEmptyParamsToSign",
+									"value": false,
+									"type": "boolean"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Shivam Vishwakarma\",\r\n    \"email\":\"shivamvishwakarma3@gmail.com\",\r\n    \"password\": \"Hello world\",\r\n    \"conpassword\": \"Hello world\",\r\n    \"address\":\"This is test address\",\r\n    \"phone\":\"1234567890\"   \r\n}",
+							"raw": "{\r\n    \"name\": \"Shivam Vishwakarma\",\r\n    \"email\":\"thunderbird2@gmail.com\",\r\n    \"password\": \"Hello world\",\r\n    \"conpassword\": \"Hello world\",\r\n    \"address\":\"This is test address\",\r\n    \"phone\":\"1234567890\"   \r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/user/register"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/register",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
 					},
 					"response": []
 				},
@@ -43,14 +68,23 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": " {\"email\":\"updatedemail@gmail.com\", \"password\":\"Hello world\"}",
+							"raw": " {\"email\":\"thunderbird2@gmail.com\", \"password\":\"Hello world\"}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/user/login"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/login",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
 					},
 					"response": []
 				},
@@ -61,11 +95,20 @@
 						"header": [
 							{
 								"key": "refreshtoken",
-								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NWU5MzgxYjYwZGMzZGYyMGY3YjliYyIsIm5hbWUiOiJTaGl2YW0gVmlzaHdha2FybWEiLCJpYXQiOjE3MzQyNjk3ODIsImV4cCI6MTczNjg2MTc4Mn0.N7jGBDJjn0iQAhmhH6y-Y0AgSfhBuXb1RxOeVKUloKo",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NmNlN2UxYjMzNGIxZmIxNGQzYzRhNyIsIm5hbWUiOiJTaGl2YW0gVmlzaHdha2FybWEiLCJ0eXBlIjoicmVmcmVzaFRva2VuIiwiaWF0IjoxNzM1MTkwNTI4LCJleHAiOjE3Mzc3ODI1Mjh9.LcZu3cRxjOJ8iP41dpKgQFnI5vCNesrkPxrfenHyU-Q",
 								"type": "text"
 							}
 						],
-						"url": "{{serverurlusermngmnt}}/user/getaccesstoken"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/getaccesstoken",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"getaccesstoken"
+							]
+						}
 					},
 					"response": []
 				},
@@ -80,7 +123,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{serverurlusermngmnt}}/user/logout"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/logout",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"logout"
+							]
+						}
 					},
 					"response": []
 				},
@@ -100,7 +152,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{serverurlusermngmnt}}/user/logoutallsessions"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/logoutallsessions",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"logoutallsessions"
+							]
+						}
 					},
 					"response": []
 				},
@@ -109,9 +170,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{accessToken}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [
@@ -122,7 +187,16 @@
 								"disabled": true
 							}
 						],
-						"url": "{{serverurlusermngmnt}}/user/validateaccesstoken"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/validateaccesstoken",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"validateaccesstoken"
+							]
+						}
 					},
 					"response": []
 				},
@@ -140,7 +214,16 @@
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/user/generateotp"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/generateotp",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"generateotp"
+							]
+						}
 					},
 					"response": []
 				},
@@ -158,7 +241,16 @@
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/user/validateotp"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/validateotp",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"validateotp"
+							]
+						}
 					},
 					"response": []
 				},
@@ -176,7 +268,16 @@
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/user/changepassword"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/changepassword",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"changepassword"
+							]
+						}
 					},
 					"response": []
 				},
@@ -194,7 +295,16 @@
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/user/resetpasswordwithotp"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/resetpasswordwithotp",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"resetpasswordwithotp"
+							]
+						}
 					},
 					"response": []
 				},
@@ -213,7 +323,16 @@
 								}
 							]
 						},
-						"url": "{{serverurlusermngmnt}}/user/fileupload"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/fileupload",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"fileupload"
+							]
+						}
 					},
 					"response": []
 				},
@@ -222,9 +341,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{accessToken}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "PUT",
 						"header": [],
@@ -237,7 +360,43 @@
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/user/updateinfo"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/user/updateinfo",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"user",
+								"updateinfo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/getuserdata",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"getuserdata"
+							]
+						}
 					},
 					"response": []
 				}
@@ -251,9 +410,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{accessToken}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "PUT",
 						"header": [],
@@ -266,7 +429,16 @@
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/admin/updateaccrole"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/admin/updateaccrole",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"admin",
+								"updateaccrole"
+							]
+						}
 					},
 					"response": []
 				},
@@ -275,9 +447,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{accessToken}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -290,7 +466,16 @@
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/admin/blockunblockuser"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/admin/blockunblockuser",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"admin",
+								"blockunblockuser"
+							]
+						}
 					},
 					"response": []
 				},
@@ -299,9 +484,13 @@
 					"request": {
 						"auth": {
 							"type": "bearer",
-							"bearer": {
-								"token": "{{accessToken}}"
-							}
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "DELETE",
 						"header": [],
@@ -314,7 +503,16 @@
 								}
 							}
 						},
-						"url": "{{serverurlusermngmnt}}/admin/deleteuser"
+						"url": {
+							"raw": "{{serverurlusermngmnt}}/admin/deleteuser",
+							"host": [
+								"{{serverurlusermngmnt}}"
+							],
+							"path": [
+								"admin",
+								"deleteuser"
+							]
+						}
 					},
 					"response": []
 				}

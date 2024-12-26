@@ -398,7 +398,7 @@ const resetpasswordwithotp = async (req, res) => {
 const diskstorage = multer.diskStorage({
     destination: function (req, file, cb) {
         if(!fs.existsSync(uploadpath)){ //check if the directory exists and if not then create it
-            fs.mkdirSync(uploadpath)
+            fs.mkdirSync(uploadpath,{ recursive: true })//this will create all the parent dir as well if they don't exist
         }
         cb(null, uploadpath)
     },
@@ -407,7 +407,7 @@ const diskstorage = multer.diskStorage({
         cb(null, newfilename)
     },
     fileFilter: (req, file, cb) => { // Only allow certain file types 
-        const allowedTypes = ['image/jpeg', 'image/png']; //tyes of file allowed for uploading, currently its jpg and jpeg.
+        const allowedTypes = ['image/jpeg', 'image/png','image/*']; //tyes of file allowed for uploading, currently its jpg and jpeg.
                                                         // docs : https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types
         if (!allowedTypes.includes(file.mimetype)) {
             return cb(new Error('Invalid file type')); 
@@ -435,6 +435,16 @@ const uploadfile = async (req, res) => {
     }
 }
 
+
+const userData=async (req,res)=>{
+    try {
+        let userData= await userModal.findById(req.body.tokendata.id)
+        res.json({userName:userData.Name,userEmail:userData.Email, userRole:userData.Role,userId:req.body.tokendata.id})
+    } catch (error) {
+        res.status(500).json({msg:"Error Occured", error:error.message})
+    }
+    
+}
 module.exports={loginuser,updateAccInfo, getaccesstoken,logoutuser,logoutAllSessions,
-    validateAccessToken,generateOTP, uploadsetup, uploadfile,
+    validateAccessToken,generateOTP, uploadsetup, uploadfile,userData,
     validateotp,changepassword,resetpasswordwithotp}
