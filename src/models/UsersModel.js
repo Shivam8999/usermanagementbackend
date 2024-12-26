@@ -36,7 +36,6 @@ const userSchema= new Schema({
     },
     otp:{
         type: String,
-        required: true,
         default: " "
     },
     otpGeneratedAt: {
