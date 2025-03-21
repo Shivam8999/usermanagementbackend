@@ -22,9 +22,12 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "google-auth-library": "^9.15.1",
+    "googleapis": "^148.0.0",
     "jsonwebtoken": "^9.0.2",
     "moongose": "^1.0.0",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "open": "^10.1.0"
   }
 }

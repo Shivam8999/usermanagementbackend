@@ -2,6 +2,7 @@ const express= require('express')
 const dbsetup= require("./src/db/index")
 const manageuserrouter= require("./src/routes/ManageUserRoutes.js")
 const cookieParser = require('cookie-parser')
+const authrouter = require("./src/auth/authrouter.js")
 require('dotenv').config()
 
 const app = express()
@@ -16,7 +17,9 @@ app.get("/api",(req,res) => {
 
 app.use("/api",manageuserrouter)
 
-app.listen(3000,"0.0.0.0",() => {
+app.use(authrouter)
+
+app.listen(7000,"0.0.0.0",() => {
     try {
         dbsetup()
         console.log("server is running on port 3000")
